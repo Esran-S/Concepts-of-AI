@@ -1,0 +1,1 @@
+import{j as e}from"./index-BWSqZ7Pz.js";function r(){return e.jsx("div",{className:"rounded-xl bg-surface p-8 text-center text-secondary mt-6",children:"Coming in a future sprint"})}export{r as default};
