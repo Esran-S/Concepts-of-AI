@@ -185,6 +185,10 @@ export default function Viz() {
     setChartData(prev => [...prev, { iter: sa.iter, fitness: Math.round(landscape(sa.x, sa.y) * 1000) / 1000 }])
     forceRender(n => n + 1)
 
+    if (sa.T < 0.001) {
+      setStatus('done')
+      return
+    }
     timerRef.current = setTimeout(doStep, DELAYS[speedKey])
   }
 
@@ -258,7 +262,10 @@ export default function Viz() {
             <option>Slow</option><option>Medium</option><option>Fast</option>
           </select>
         </label>
-        <div className="flex gap-2 ml-auto">
+        <div className="flex gap-2 ml-auto items-center">
+          {status === 'done' && (
+            <span className="text-xs font-semibold" style={{ color: COLOR }}>Converged ✓</span>
+          )}
           {status !== 'running' && (
             <button onClick={handlePlay}
               className="px-4 py-2 rounded-lg text-sm font-medium text-white"
