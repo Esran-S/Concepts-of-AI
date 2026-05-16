@@ -176,9 +176,11 @@ export default function Game() {
           <div className="h-full rounded-full transition-all duration-300"
             style={{ width: `${(roundIdx / ROUNDS.length) * 100}%`, background: COLOR }} />
         </div>
-        <span className="text-[12px] font-mono shrink-0" style={{ color: 'var(--text-muted)' }}>
-          {score}/{roundIdx} correct
-        </span>
+        {roundIdx > 0 && (
+          <span className="text-[12px] font-mono shrink-0" style={{ color: 'var(--text-muted)' }}>
+            {score}/{roundIdx} correct
+          </span>
+        )}
         {streak >= 2 && (
           <span className="text-[12px] font-bold shrink-0" style={{ color: '#F59E0B' }}>
             {streak} 🔥

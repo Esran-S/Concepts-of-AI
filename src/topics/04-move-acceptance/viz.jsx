@@ -69,8 +69,9 @@ function runAll(seed) {
     const logParts = [`Step ${i + 1}:`]
 
     // Greedy
-    if (f(nx) > f(greedy.x)) { greedy.x = nx; greedy.accepted++; logParts.push(`Greedy accepted (quality +${(f(nx) - f(greedy.x > nx ? nx : greedy.x)).toFixed(2)})`) }
-    else logParts.push(`Greedy rejected (quality dropped ${(f(greedy.x) - f(nx)).toFixed(2)})`)
+    const oldGreedyFit = f(greedy.x)
+    if (f(nx) > oldGreedyFit) { greedy.x = nx; greedy.accepted++; logParts.push(`Greedy accepted (quality +${(f(nx) - oldGreedyFit).toFixed(2)})`) }
+    else logParts.push(`Greedy rejected (quality dropped ${(oldGreedyFit - f(nx)).toFixed(2)})`)
     greedy.hist.push(greedy.x)
 
     // SA

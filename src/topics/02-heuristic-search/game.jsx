@@ -296,11 +296,12 @@ export default function Game() {
             Best found: <span className="font-bold text-primary">{bestVal}</span>
           </span>
           {lastMove && (
-            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-              lastMove === 'up' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' :
-              lastMove === 'down' ? 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300' :
-              'bg-surface text-muted'
-            }`}>
+            <span className="text-xs font-medium px-2 py-0.5 rounded-full"
+              style={
+                lastMove === 'up' ? { background: '#10B98120', color: '#10B981' } :
+                lastMove === 'down' ? { background: '#F43F5E20', color: '#F43F5E' } :
+                { background: 'var(--surface)', color: 'var(--text-muted)' }
+              }>
               {lastMove === 'up' ? '↑ Uphill' : lastMove === 'down' ? '↓ Downhill' : '→ Flat'}
             </span>
           )}

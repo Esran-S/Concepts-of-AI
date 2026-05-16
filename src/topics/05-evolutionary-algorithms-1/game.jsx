@@ -220,9 +220,9 @@ export default function Game() {
                   <p className="text-muted">Parent 2</p>
                   <p className="font-mono font-bold text-primary">{lastChild.p2x.toFixed(2)}</p>
                 </div>
-                <div className="rounded-lg p-2 border-2 border-green-400 bg-green-50 dark:bg-green-950">
+                <div className="rounded-lg p-2 border-2 border-green-400" style={{ background: '#10B98115' }}>
                   <p className="text-muted">Child</p>
-                  <p className="font-mono font-bold text-green-600">{lastChild.x.toFixed(2)}</p>
+                  <p className="font-mono font-bold" style={{ color: '#10B981' }}>{lastChild.x.toFixed(2)}</p>
                 </div>
               </div>
               <p className="text-xs text-muted">

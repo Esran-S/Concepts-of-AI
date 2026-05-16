@@ -201,6 +201,7 @@ export default function Game() {
               <div key={m.key}
                 draggable={!inUse}
                 onDragStart={() => handleDragStart(m.key)}
+                onDragEnd={() => setDragKey(null)}
                 className={`px-3 py-2 rounded-xl border text-xs font-medium cursor-grab select-none transition-opacity ${inUse ? 'opacity-30 cursor-not-allowed' : 'hover:opacity-80'}`}
                 style={{ borderColor: m.color, color: m.color, background: m.color + '18' }}>
                 <p className="font-semibold">{m.label}</p>

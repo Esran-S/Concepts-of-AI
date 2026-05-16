@@ -23,11 +23,6 @@ function generateItems(seed) {
   const rng = seededRng(seed)
   // Generate items such that theoretical minimum bins is 3
   // Strategy: 3 groups of items that fit neatly into 3 bins of capacity 6
-  const baseSizes = [
-    [3, 2, 1], [4, 2], [3, 3], [2, 2, 2], [5, 1], [4, 1, 1],
-    [3, 2, 1], [2, 2, 2], [4, 2], [3, 3], [2, 2, 2], [5, 1],
-  ]
-  // Flatten into 12 items
   const flat = [3, 2, 1, 4, 2, 3, 3, 2, 2, 2, 5, 1]
   // Shuffle using rng
   const arr = flat.slice()

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 
 const COLOR = '#F43F5E'
 const N = 40
@@ -182,7 +182,7 @@ export default function Game() {
   }
 
   const seed = 42 + missionIdx * 17
-  const baseline = runFull(seed, 20)
+  const baseline = useMemo(() => runFull(seed, 20), [seed])
   const stars = finalScore !== null ? getStars(mission.goal, finalScore, baseline) : 0
   const totalStars = missionScores.reduce((s, m) => s + m.stars, 0)
 

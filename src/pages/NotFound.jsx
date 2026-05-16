@@ -11,7 +11,8 @@ export default function NotFound() {
       </p>
       <Link
         to="/"
-        className="text-sm text-blue-600 hover:underline dark:text-blue-400"
+        className="text-sm hover:underline"
+        style={{ color: '#3B82F6' }}
       >
         ← Back to all topics
       </Link>

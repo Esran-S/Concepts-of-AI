@@ -184,7 +184,7 @@ export default function Game() {
       {/* Progress */}
       <div className="flex justify-between text-xs text-muted">
         <span>Scenario <strong className="text-primary">{scIdx + 1}</strong> / {SCENARIOS.length}</span>
-        <span>Points: <strong className="text-primary">{scores.reduce((a, b) => a + b, 0)}</strong> / {scIdx * 3}</span>
+        <span>Points: <strong className="text-primary">{scores.reduce((a, b) => a + b, 0)}</strong> / {scores.length * 3}</span>
       </div>
 
       {/* Scenario card */}
