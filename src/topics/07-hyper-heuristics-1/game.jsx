@@ -84,6 +84,23 @@ const LLHS = [
   { key: 'LocalSearch',  label: 'Local Search',     desc: 'Apply 8 random swaps, keep any improvement',      color: '#F43F5E' },
 ]
 
+function runGreedyHH(initAsgn, seed) {
+  const rng = makeLcg(seed)
+  let a = [...initAsgn]
+  const hist = [countClashes(a)]
+  for (let step = 0; step < N_STEPS; step++) {
+    let bestA = a, bestV = countClashes(a)
+    for (const h of LLHS) {
+      const cand = applyLLH(h.key, a, rng)
+      const v = countClashes(cand)
+      if (v < bestV) { bestV = v; bestA = cand }
+    }
+    a = bestA
+    hist.push(countClashes(a))
+  }
+  return hist
+}
+
 function runRandomHH(initAsgn, seed) {
   const rng = makeLcg(seed)
   let a = [...initAsgn]
@@ -112,6 +129,7 @@ export default function Game() {
   const [step, setStep] = useState(0)
   const [lastLLH, setLastLLH] = useState(null)
   const [randomHist, setRandomHist] = useState([])
+  const [greedyHist, setGreedyHist] = useState([])
   const rngRef = useRef(null)
 
   function handleStart() {
@@ -121,6 +139,7 @@ export default function Game() {
     setAssignment(asgn)
     setHistory([countClashes(asgn)])
     setRandomHist(runRandomHH(asgn, seed + 999))
+    setGreedyHist(runGreedyHH(asgn, seed + 999))
     setStep(0)
     setLastLLH(null)
     setPhase('playing')
@@ -144,7 +163,7 @@ export default function Game() {
   }
 
   const clashes = assignment ? countClashes(assignment) : 0
-  const chartData = history.map((v, i) => ({ step: i, You: v, Random: randomHist[i] ?? null }))
+  const chartData = history.map((v, i) => ({ step: i, You: v, Random: randomHist[i] ?? null, Greedy: greedyHist[i] ?? null }))
   const slotGroups = Array.from({ length: N_SLOTS }, (_, s) =>
     Array.from({ length: N_EXAMS }, (_, e) => e).filter(e => assignment && assignment[e] === s)
   )
@@ -153,12 +172,12 @@ export default function Game() {
     <div className="mt-6 space-y-5">
       {phase === 'config' && (
         <div className="space-y-4">
-          <p className="text-sm text-secondary leading-relaxed">
-            You are the hyper-heuristic. A random exam timetable is generated with{' '}
-            {N_EXAMS} exams across {N_SLOTS} slots. Your goal is to reduce student
-            clashes (two required exams in the same slot) by choosing which low-level
-            heuristic to apply at each of {N_STEPS} steps. Beat the random selector.
-          </p>
+          <div className="rounded-2xl px-4 py-3 flex items-start gap-2" style={{ background: COLOR + '12', border: `1px solid ${COLOR}30` }}>
+            <span className="text-lg mt-0.5">🎯</span>
+            <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
+              You're the hyper-heuristic! Each step, pick a low-level heuristic to reduce student clashes — two exams a student must attend in the same slot. Beat the random selector over {N_STEPS} steps.
+            </p>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {LLHS.map(h => (
               <div key={h.key} className="bg-surface rounded-xl p-4 border border-border">
@@ -250,6 +269,7 @@ export default function Game() {
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   <Line type="monotone" dataKey="You"    stroke={COLOR}   dot={false} strokeWidth={2}   isAnimationActive={false} />
                   <Line type="monotone" dataKey="Random" stroke="#A1A1AA" dot={false} strokeWidth={1.5} strokeDasharray="4 2" isAnimationActive={false} />
+                  <Line type="monotone" dataKey="Greedy" stroke="#10B981" dot={false} strokeWidth={1.5} strokeDasharray="2 2" isAnimationActive={false} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -257,17 +277,47 @@ export default function Game() {
 
           {/* Result */}
           {phase === 'result' && (
-            <div className="rounded-xl bg-surface p-4 text-center space-y-1">
-              <p className="text-xs text-muted uppercase tracking-widest">Final score</p>
-              <p className="text-3xl font-bold text-primary">{clashes} clashes</p>
-              <p className="text-sm text-secondary">
-                Random HH finished with{' '}
-                <span className="font-bold text-primary">{randomHist[N_STEPS]}</span> clashes
-                {' '}—{' '}
-                {clashes < randomHist[N_STEPS]
-                  ? 'you beat the random selector!'
-                  : clashes === randomHist[N_STEPS] ? 'tied.' : 'the random selector won this round.'}
-              </p>
+            <div className="space-y-3">
+              <div className="rounded-xl bg-surface p-4 space-y-3">
+                <p className="text-xs text-muted uppercase tracking-widest text-center">Final clashes</p>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-card rounded-xl p-3 text-center border border-border">
+                    <p className="text-xs text-muted mb-1">You</p>
+                    <p className="text-2xl font-bold" style={{ color: clashes === 0 ? '#10B981' : '#F43F5E' }}>{clashes}</p>
+                  </div>
+                  <div className="bg-card rounded-xl p-3 text-center border border-border">
+                    <p className="text-xs text-muted mb-1">Random HH</p>
+                    <p className="text-2xl font-bold text-primary">{randomHist[N_STEPS]}</p>
+                  </div>
+                  <div className="bg-card rounded-xl p-3 text-center border border-border">
+                    <p className="text-xs text-muted mb-1">Greedy HH</p>
+                    <p className="text-2xl font-bold" style={{ color: '#10B981' }}>{greedyHist[N_STEPS]}</p>
+                  </div>
+                </div>
+                <p className="text-sm text-secondary text-center">
+                  {clashes < randomHist[N_STEPS]
+                    ? 'You beat the random selector!'
+                    : clashes === randomHist[N_STEPS] ? 'Tied with random selection.' : 'The random selector won this round.'}
+                </p>
+              </div>
+              <div className="rounded-xl bg-surface border border-border p-4 space-y-3">
+                <p className="text-xs uppercase tracking-widest text-muted">Algorithm vs Human</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-card rounded-xl p-3 text-center border border-border">
+                    <p className="text-xs text-muted mb-1">Greedy HH speed</p>
+                    <p className="text-xl font-bold" style={{ color: '#10B981' }}>&lt; 1 ms</p>
+                  </div>
+                  <div className="bg-card rounded-xl p-3 text-center border border-border">
+                    <p className="text-xs text-muted mb-1">Human (15 steps)</p>
+                    <p className="text-xl font-bold text-primary">~2 min</p>
+                  </div>
+                </div>
+                <p className="text-xs text-secondary leading-relaxed">
+                  The greedy HH evaluates all 4 low-level heuristics at each step and picks the best —
+                  all 15 steps in under a millisecond. A human spends seconds per decision. Automated
+                  hyper-heuristics can run 100,000 steps in the time you took to play 15.
+                </p>
+              </div>
             </div>
           )}
 

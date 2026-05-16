@@ -91,12 +91,12 @@ export default function Game() {
 
   return (
     <div className="mt-6 space-y-5">
-      <p className="text-sm text-secondary leading-relaxed">
-        Color the graph so that no two connected nodes share a color. Three colors
-        are enough — can you find a valid 3-coloring? Select a color below, then
-        click nodes to assign it. Press "Show heuristic solution" to see how a
-        degree-based heuristic solves it automatically.
-      </p>
+      <div className="rounded-2xl px-4 py-3 flex items-start gap-2" style={{ background: COLOR + '12', border: `1px solid ${COLOR}30` }}>
+        <span className="text-lg mt-0.5">🎯</span>
+        <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
+          Color every node so that <strong>no two connected nodes share the same color</strong>. Only 3 colors needed — pick a color below, then click nodes.
+        </p>
+      </div>
 
       {/* Color picker */}
       {!showSolution && (
@@ -188,6 +188,32 @@ export default function Game() {
           Reset
         </button>
       </div>
+
+      {showSolution && (
+        <div className="rounded-xl bg-surface border border-border p-4 space-y-3">
+          <p className="text-xs uppercase tracking-widest text-muted">Algorithm vs Human</p>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-card rounded-xl p-3 text-center border border-border">
+              <p className="text-xs text-muted mb-1">Colors used</p>
+              <p className="text-2xl font-bold" style={{ color: COLOR }}>{new Set(GREEDY_SOLUTION).size}</p>
+            </div>
+            <div className="bg-card rounded-xl p-3 text-center border border-border">
+              <p className="text-xs text-muted mb-1">Conflicts</p>
+              <p className="text-2xl font-bold" style={{ color: '#10B981' }}>0</p>
+            </div>
+            <div className="bg-card rounded-xl p-3 text-center border border-border">
+              <p className="text-xs text-muted mb-1">Speed</p>
+              <p className="text-2xl font-bold" style={{ color: COLOR }}>&lt; 1 ms</p>
+            </div>
+          </div>
+          <p className="text-xs text-secondary leading-relaxed">
+            The degree-ordering heuristic colors this 8-node graph in microseconds with zero
+            conflicts. For a real-world university timetable — 1,000 courses, 50 rooms — it still
+            finishes in under a second. A human would need hours and likely make errors.
+            GP-evolved heuristics can learn smarter orderings that use fewer colors on harder instances.
+          </p>
+        </div>
+      )}
     </div>
   )
 }

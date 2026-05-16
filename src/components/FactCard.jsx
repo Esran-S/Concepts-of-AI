@@ -1,11 +1,24 @@
 export default function FactCard({ children, color }) {
   return (
     <div
-      className="bg-surface rounded-xl p-5"
-      style={{ borderLeft: `4px solid ${color}` }}
+      className="rounded-2xl p-5 space-y-2"
+      style={{
+        background: color + '10',
+        border: `1px solid ${color}30`,
+      }}
     >
-      <p className="text-xs uppercase tracking-widest text-muted mb-2">Did you know</p>
-      <p className="text-sm leading-relaxed text-secondary italic">{children}</p>
+      <p
+        className="text-[11px] font-bold uppercase tracking-widest"
+        style={{ color }}
+      >
+        Did you know
+      </p>
+      <p
+        className="text-[13px] leading-relaxed"
+        style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}
+      >
+        {children}
+      </p>
     </div>
   )
 }

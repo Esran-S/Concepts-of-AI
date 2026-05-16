@@ -3,30 +3,49 @@
 @tailwind utilities;
 
 :root {
-  --bg:             #FFFFFF;
-  --surface:        #F4F4F5;
+  --bg:             #F5F5F7;
+  --surface:        #FFFFFF;
   --card:           #FFFFFF;
-  --border:         #E4E4E7;
-  --text-primary:   #18181B;
-  --text-secondary: #71717A;
-  --text-muted:     #A1A1AA;
+  --border:         rgba(0, 0, 0, 0.08);
+  --text-primary:   #1D1D1F;
+  --text-secondary: #6E6E73;
+  --text-muted:     #AEAEB2;
+  --nav-bg:         rgba(245, 245, 247, 0.82);
+  --shadow-sm:      0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+  --shadow-md:      0 4px 20px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.05);
+  --shadow-lg:      0 8px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
 }
 
 .dark {
-  --bg:             #09090B;
-  --surface:        #18181B;
-  --card:           #27272A;
-  --border:         #3F3F46;
-  --text-primary:   #E4E4E7;
-  --text-secondary: #A1A1AA;
-  --text-muted:     #52525B;
+  --bg:             #000000;
+  --surface:        #1C1C1E;
+  --card:           #2C2C2E;
+  --border:         rgba(255, 255, 255, 0.10);
+  --text-primary:   #F5F5F7;
+  --text-secondary: rgba(235,235,245,0.60);
+  --text-muted:     rgba(235,235,245,0.30);
+  --nav-bg:         rgba(0, 0, 0, 0.82);
+  --shadow-sm:      0 1px 4px rgba(0,0,0,0.5);
+  --shadow-md:      0 4px 20px rgba(0,0,0,0.55);
+  --shadow-lg:      0 8px 40px rgba(0,0,0,0.65);
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
+               'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg);
+}
+
+h1, h2, h3 {
+  letter-spacing: -0.025em;
+}
+
+/* Range input shared style */
+input[type="range"] {
+  accent-color: currentColor;
 }

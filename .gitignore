@@ -1,2 +1,22 @@
 node_modules
 dist
+
+# Environment / secrets — never commit these
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Editor / OS artefacts
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+*.swp
+*.swo
+
+# Build / cache
+.cache
+.parcel-cache

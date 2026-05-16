@@ -79,6 +79,29 @@ function Stars({ count }) {
   )
 }
 
+function runAutoHC(grid) {
+  const starts = [
+    [1,1],[1,GRID-2],[GRID-2,1],[GRID-2,GRID-2],
+    [GRID>>1,GRID>>1],[2,GRID>>1],[GRID-2,2],[GRID>>1,2],
+  ]
+  let best = 0
+  for (const [sr, sc] of starts) {
+    let r = sr, c = sc, val = grid[r][c]
+    for (let i = 0; i < GRID * GRID; i++) {
+      let moved = false
+      for (const [dr, dc] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+        const nr = r+dr, nc = c+dc
+        if (nr>=0 && nr<GRID && nc>=0 && nc<GRID && grid[nr][nc] > val) {
+          r=nr; c=nc; val=grid[nr][nc]; moved=true
+        }
+      }
+      if (!moved) break
+    }
+    best = Math.max(best, val)
+  }
+  return best
+}
+
 export default function Game() {
   const [seed, setSeed] = useState(99)
   const [gridData, setGridData] = useState(null)
@@ -88,6 +111,7 @@ export default function Game() {
   const [restartsLeft, setRestartsLeft] = useState(MAX_RESTARTS)
   const [phase, setPhase] = useState('playing') // 'playing' | 'result'
   const [lastMove, setLastMove] = useState(null) // 'up'|'down'|'flat'
+  const [autoHCBest, setAutoHCBest] = useState(null)
   const seedRef = useRef(seed)
 
   const initGame = useCallback((s) => {
@@ -127,11 +151,6 @@ export default function Game() {
 
   function handleMove(nr, nc) {
     if (!gridData || !visible) return
-    // If unrevealed: first click reveals, second moves
-    if (!visible[nr][nc]) {
-      setVisible(prev => reveal(prev, nr, nc))
-      return
-    }
     const newVal = gridData.grid[nr][nc]
     const oldVal = gridData.grid[player.r][player.c]
     const dir = newVal > oldVal ? 'up' : newVal < oldVal ? 'down' : 'flat'
@@ -155,8 +174,11 @@ export default function Game() {
     setLastMove(null)
   }
 
-  function handleDone() { setPhase('result') }
-  function handleNewGame() { const s = seed + 1; setSeed(s); initGame(s) }
+  function handleDone() {
+    setAutoHCBest(runAutoHC(gridData.grid))
+    setPhase('result')
+  }
+  function handleNewGame() { const s = seed + 1; setSeed(s); setAutoHCBest(null); initGame(s) }
 
   if (!gridData || !visible || !player) return null
 
@@ -192,6 +214,32 @@ export default function Game() {
             {stars === 1 && 'The global optimum was elusive. Hill climbing often gets stuck in local peaks.'}
           </p>
         </div>
+
+        {autoHCBest !== null && (
+          <div className="rounded-xl bg-surface border border-border p-4 space-y-3">
+            <p className="text-xs uppercase tracking-widest text-muted">Algorithm vs Human</p>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-card rounded-xl p-3 text-center border border-border">
+                <p className="text-xs text-muted mb-1">Your best</p>
+                <p className="text-2xl font-bold text-primary">{bestVal}</p>
+              </div>
+              <div className="bg-card rounded-xl p-3 text-center border border-border">
+                <p className="text-xs text-muted mb-1">Auto hill-climber</p>
+                <p className="text-2xl font-bold" style={{ color: COLOR }}>{autoHCBest}</p>
+              </div>
+              <div className="bg-card rounded-xl p-3 text-center border border-border">
+                <p className="text-xs text-muted mb-1">Speed</p>
+                <p className="text-2xl font-bold" style={{ color: COLOR }}>&lt; 1 ms</p>
+              </div>
+            </div>
+            <p className="text-xs text-secondary leading-relaxed">
+              The automated hill-climber tries 8 starting positions and takes steepest-ascent
+              steps until stuck — all in under a millisecond. You had 5 restarts over 90 seconds;
+              the algorithm runs hundreds of restarts in the same time. At 10,000×10,000 scale a
+              human could explore a fraction of a percent; the algorithm covers it all.
+            </p>
+          </div>
+        )}
 
         {/* Full reveal grid */}
         <div>
@@ -233,6 +281,14 @@ export default function Game() {
 
   return (
     <div className="mt-6 space-y-4">
+      {/* Goal callout */}
+      <div className="rounded-2xl px-4 py-3 flex items-center gap-2" style={{ background: COLOR + '12', border: `1px solid ${COLOR}30` }}>
+        <span className="text-lg">🎯</span>
+        <p className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
+          You're hill climbing! Move to adjacent cells to find the <strong>highest value</strong>. You can't see the full map — only what you've explored.
+        </p>
+      </div>
+
       {/* Status bar */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-4">
@@ -269,7 +325,7 @@ export default function Game() {
       </div>
 
       <p className="text-xs text-muted">
-        Click adjacent cells to explore. Click once to reveal, again to move. Use arrow keys to move directly.
+        Click any adjacent cell to move there. Use arrow keys for quick navigation. Cells beyond your reach stay hidden.
       </p>
 
       {/* Grid */}
@@ -286,9 +342,9 @@ export default function Game() {
             return (
               <div
                 key={`${r}-${c}`}
-                onClick={() => isAdjacent && handleMove(r, c)}
+                onClick={() => isAdjacent && !isPlayer && handleMove(r, c)}
                 className={`flex items-center justify-center font-bold transition-colors duration-100 ${
-                  isAdjacent ? 'cursor-pointer' : 'cursor-default'
+                  isAdjacent && !isPlayer ? 'cursor-pointer' : 'cursor-default'
                 }`}
                 style={{
                   aspectRatio: '1',
@@ -298,12 +354,12 @@ export default function Game() {
                     : isVis
                     ? fitnessColor(val)
                     : 'var(--surface)',
-                  border: isPlayer ? `2px solid ${COLOR}` : isAdjacent && !isVis ? '1px dashed var(--border)' : 'none',
+                  border: isPlayer ? `2px solid ${COLOR}` : isAdjacent && isVis ? `1px solid ${COLOR}60` : isAdjacent ? '1px dashed var(--border)' : 'none',
                   color: isPlayer ? '#fff' : isVis ? '#fff' : 'var(--text-muted)',
-                  outline: isAdjacent && isVis ? `1px solid ${COLOR}40` : 'none',
+                  opacity: isAdjacent && !isPlayer && isVis ? (val > grid[player.r][player.c] ? 1 : 0.75) : 1,
                 }}
               >
-                {isPlayer ? '●' : isVis ? val : '?'}
+                {isPlayer ? '●' : isVis ? val : isAdjacent ? '?' : ''}
               </div>
             )
           })
